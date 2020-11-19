@@ -23,11 +23,18 @@ namespace SerialTerminal
         int baudRate = 0;
         string comPort = string.Empty;
 
+        /* For remembering previously sent messages */
+        Stack<string> previousSentMessages = new Stack<string>();
+        Stack<string> previousPoppedMessages = new Stack<string>();
+
+        /* For sending received serial data to text box safely */
         private delegate void SafeCallDelegate(string text);
 
         public SerialTerminal()
         {
             InitializeComponent();
+
+            /* Init button colours */
             connectionButton.BackColor = Color.FromArgb(67, 176, 46);
             clearButton.BackColor = Color.FromArgb(67, 176, 46);
             sendButton.BackColor = Color.FromArgb(67, 176, 46);
@@ -132,6 +139,65 @@ namespace SerialTerminal
         private void clearButton_Click(object sender, EventArgs e)
         {
             receivedTextBox.Clear();
+        }
+
+        private void sendButton_Click(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                string msg = sendTextBox.Text;
+
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    previousSentMessages.Push(msg);
+                }
+
+                _serialPort.WriteLine(msg);
+                sendTextBox.Clear();
+            }
+        }
+
+        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                if (connected)
+                {
+                    string msg = sendTextBox.Text;
+
+                    if(!string.IsNullOrWhiteSpace(msg))
+                    {
+                        previousSentMessages.Push(msg);
+                    }
+                    
+                    _serialPort.WriteLine(msg);            
+                    sendTextBox.Clear();
+                }
+            }
+            else if(e.KeyCode == Keys.Up)
+            {
+                if (previousSentMessages.Count > 0)
+                {
+                    sendTextBox.Text = previousSentMessages.Pop();
+                    previousPoppedMessages.Push(sendTextBox.Text);
+                }
+                else 
+                {
+                    sendTextBox.Clear();
+                }
+            }
+            else if(e.KeyCode == Keys.Down)
+            {
+                if (previousPoppedMessages.Count > 0)
+                {
+                    sendTextBox.Text = previousPoppedMessages.Pop();
+                    previousSentMessages.Push(sendTextBox.Text);
+                }
+                else
+                {
+                    sendTextBox.Clear();
+                }
+            }
         }
         #endregion
     }

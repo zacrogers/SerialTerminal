@@ -111,6 +111,7 @@ namespace SerialTerminal
             this.sendTextBox.Name = "sendTextBox";
             this.sendTextBox.Size = new System.Drawing.Size(560, 23);
             this.sendTextBox.TabIndex = 7;
+            this.sendTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDownHandler);
             // 
             // sendButton
             // 
@@ -121,6 +122,7 @@ namespace SerialTerminal
             this.sendButton.TabIndex = 8;
             this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
+            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
             // 
             // clearButton
             // 
