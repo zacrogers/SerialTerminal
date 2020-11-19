@@ -38,6 +38,8 @@ namespace SerialTerminal
             this.sendTextBox = new System.Windows.Forms.TextBox();
             this.sendButton = new System.Windows.Forms.Button();
             this.clearButton = new System.Windows.Forms.Button();
+            this.newlineCheckBox = new System.Windows.Forms.CheckBox();
+            this.carriageReturnCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // baudComboBox
@@ -65,7 +67,7 @@ namespace SerialTerminal
             // connectionButton
             // 
             this.connectionButton.ForeColor = System.Drawing.Color.White;
-            this.connectionButton.Location = new System.Drawing.Point(586, 121);
+            this.connectionButton.Location = new System.Drawing.Point(586, 156);
             this.connectionButton.Name = "connectionButton";
             this.connectionButton.Size = new System.Drawing.Size(121, 30);
             this.connectionButton.TabIndex = 3;
@@ -99,15 +101,16 @@ namespace SerialTerminal
             this.receivedTextBox.ForeColor = System.Drawing.SystemColors.Info;
             this.receivedTextBox.Location = new System.Drawing.Point(12, 12);
             this.receivedTextBox.Name = "receivedTextBox";
-            this.receivedTextBox.Size = new System.Drawing.Size(560, 183);
+            this.receivedTextBox.Size = new System.Drawing.Size(560, 226);
             this.receivedTextBox.TabIndex = 6;
             this.receivedTextBox.Text = "";
+            this.receivedTextBox.TextChanged += new System.EventHandler(this.ReceivedTextBoxTextChanged);
             // 
             // sendTextBox
             // 
             this.sendTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.sendTextBox.ForeColor = System.Drawing.SystemColors.Info;
-            this.sendTextBox.Location = new System.Drawing.Point(12, 214);
+            this.sendTextBox.Location = new System.Drawing.Point(12, 256);
             this.sendTextBox.Name = "sendTextBox";
             this.sendTextBox.Size = new System.Drawing.Size(560, 23);
             this.sendTextBox.TabIndex = 7;
@@ -116,7 +119,7 @@ namespace SerialTerminal
             // sendButton
             // 
             this.sendButton.ForeColor = System.Drawing.Color.White;
-            this.sendButton.Location = new System.Drawing.Point(586, 214);
+            this.sendButton.Location = new System.Drawing.Point(586, 255);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(121, 23);
             this.sendButton.TabIndex = 8;
@@ -127,7 +130,7 @@ namespace SerialTerminal
             // clearButton
             // 
             this.clearButton.ForeColor = System.Drawing.Color.White;
-            this.clearButton.Location = new System.Drawing.Point(586, 165);
+            this.clearButton.Location = new System.Drawing.Point(586, 208);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(121, 30);
             this.clearButton.TabIndex = 9;
@@ -135,12 +138,36 @@ namespace SerialTerminal
             this.clearButton.UseVisualStyleBackColor = true;
             this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
+            // newlineCheckBox
+            // 
+            this.newlineCheckBox.AutoSize = true;
+            this.newlineCheckBox.ForeColor = System.Drawing.Color.White;
+            this.newlineCheckBox.Location = new System.Drawing.Point(586, 122);
+            this.newlineCheckBox.Name = "newlineCheckBox";
+            this.newlineCheckBox.Size = new System.Drawing.Size(41, 19);
+            this.newlineCheckBox.TabIndex = 10;
+            this.newlineCheckBox.Text = "NL";
+            this.newlineCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // carriageReturnCheckBox
+            // 
+            this.carriageReturnCheckBox.AutoSize = true;
+            this.carriageReturnCheckBox.ForeColor = System.Drawing.Color.White;
+            this.carriageReturnCheckBox.Location = new System.Drawing.Point(653, 122);
+            this.carriageReturnCheckBox.Name = "carriageReturnCheckBox";
+            this.carriageReturnCheckBox.Size = new System.Drawing.Size(41, 19);
+            this.carriageReturnCheckBox.TabIndex = 11;
+            this.carriageReturnCheckBox.Text = "CR";
+            this.carriageReturnCheckBox.UseVisualStyleBackColor = true;
+            // 
             // SerialTerminal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(729, 259);
+            this.ClientSize = new System.Drawing.Size(720, 289);
+            this.Controls.Add(this.carriageReturnCheckBox);
+            this.Controls.Add(this.newlineCheckBox);
             this.Controls.Add(this.clearButton);
             this.Controls.Add(this.sendButton);
             this.Controls.Add(this.sendTextBox);
@@ -150,6 +177,7 @@ namespace SerialTerminal
             this.Controls.Add(this.connectionButton);
             this.Controls.Add(this.comPortComboBox);
             this.Controls.Add(this.baudComboBox);
+            this.MaximizeBox = false;
             this.Name = "SerialTerminal";
             this.Text = "SerialTerminal";
             this.ResumeLayout(false);
@@ -167,6 +195,8 @@ namespace SerialTerminal
         private System.Windows.Forms.TextBox sendTextBox;
         private System.Windows.Forms.Button sendButton;
         private System.Windows.Forms.Button clearButton;
+        private System.Windows.Forms.CheckBox newlineCheckBox;
+        private System.Windows.Forms.CheckBox carriageReturnCheckBox;
     }
 }
 

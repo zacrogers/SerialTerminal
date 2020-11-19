@@ -19,7 +19,6 @@ namespace SerialTerminal
         static string[] comPorts = SerialPort.GetPortNames();
         static SerialPort _serialPort;
 
-        bool connected = false;
         int baudRate = 0;
         string comPort = string.Empty;
 
@@ -69,7 +68,7 @@ namespace SerialTerminal
 
         private void SerialDataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e) 
         {
-            if(connected)
+            if(_serialPort.IsOpen)
             {
                 try 
                 {
@@ -100,24 +99,31 @@ namespace SerialTerminal
             }
         }
 
+        private void ReceivedTextBoxTextChanged(object sender, EventArgs e)
+        {
+            receivedTextBox.SelectionStart = receivedTextBox.Text.Length;
+            receivedTextBox.ScrollToCaret();
+        }
+
         private void ConnectButtonClick(object sender, EventArgs e)
         {
-            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !connected)
+            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !_serialPort.IsOpen)
             {
                 _serialPort.PortName = comPort;
                 _serialPort.BaudRate = baudRate;
                 _serialPort.Open();
                 _serialPort.DataReceived += SerialDataReceived;
 
-                connected = true;
+                if(_serialPort.IsOpen)
+                {
+                    connectionButton.Text = "Disconnect";
+                    connectionButton.BackColor = Color.FromArgb(181, 38, 38);
+                }
 
-                connectionButton.Text = "Disconnect";
-                connectionButton.BackColor = Color.FromArgb(181, 38, 38);
             }
-            else if(connected)
+            else if(_serialPort.IsOpen)
             {
                 _serialPort.Close();
-                connected = false;
                 connectionButton.Text = "Connect";
                 connectionButton.BackColor = Color.FromArgb(67, 176, 46);
             }
@@ -143,17 +149,31 @@ namespace SerialTerminal
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            if (connected)
+            if (_serialPort.IsOpen)
             {
                 string msg = sendTextBox.Text;
 
                 if (!string.IsNullOrWhiteSpace(msg))
                 {
+                    if (carriageReturnCheckBox.Checked)
+                    {
+                        msg += '\r';
+                    }
+
+                    if (newlineCheckBox.Checked)
+                    {
+                        msg += '\n';
+                    }
                     previousSentMessages.Push(msg);
                 }
 
-                _serialPort.WriteLine(msg);
+                _serialPort.Write(msg);
                 sendTextBox.Clear();
+            }
+            else
+            {
+                connectionButton.Text = "Connect";
+                connectionButton.BackColor = Color.FromArgb(67, 176, 46);
             }
         }
 
@@ -161,17 +181,32 @@ namespace SerialTerminal
         {
             if(e.KeyCode == Keys.Enter)
             {
-                if (connected)
+                if (_serialPort.IsOpen)
                 {
                     string msg = sendTextBox.Text;
 
                     if(!string.IsNullOrWhiteSpace(msg))
                     {
+                        if (carriageReturnCheckBox.Checked)
+                        {
+                            msg += '\r';
+                        }
+
+                        if (newlineCheckBox.Checked)
+                        {
+                            msg += '\n';
+                        }
+
                         previousSentMessages.Push(msg);
                     }
                     
-                    _serialPort.WriteLine(msg);            
+                    _serialPort.Write(msg);            
                     sendTextBox.Clear();
+                }
+                else
+                {
+                    connectionButton.Text = "Connect";
+                    connectionButton.BackColor = Color.FromArgb(67, 176, 46);
                 }
             }
             else if(e.KeyCode == Keys.Up)
