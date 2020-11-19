@@ -37,12 +37,15 @@ namespace SerialTerminal
             this.receivedTextBox = new System.Windows.Forms.RichTextBox();
             this.sendTextBox = new System.Windows.Forms.TextBox();
             this.sendButton = new System.Windows.Forms.Button();
+            this.clearButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // baudComboBox
             // 
+            this.baudComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.baudComboBox.ForeColor = System.Drawing.Color.White;
             this.baudComboBox.FormattingEnabled = true;
-            this.baudComboBox.Location = new System.Drawing.Point(586, 36);
+            this.baudComboBox.Location = new System.Drawing.Point(586, 30);
             this.baudComboBox.Name = "baudComboBox";
             this.baudComboBox.Size = new System.Drawing.Size(121, 23);
             this.baudComboBox.TabIndex = 1;
@@ -50,8 +53,10 @@ namespace SerialTerminal
             // 
             // comPortComboBox
             // 
+            this.comPortComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.comPortComboBox.ForeColor = System.Drawing.Color.White;
             this.comPortComboBox.FormattingEnabled = true;
-            this.comPortComboBox.Location = new System.Drawing.Point(586, 102);
+            this.comPortComboBox.Location = new System.Drawing.Point(586, 81);
             this.comPortComboBox.Name = "comPortComboBox";
             this.comPortComboBox.Size = new System.Drawing.Size(121, 23);
             this.comPortComboBox.TabIndex = 2;
@@ -59,9 +64,10 @@ namespace SerialTerminal
             // 
             // connectionButton
             // 
-            this.connectionButton.Location = new System.Drawing.Point(586, 153);
+            this.connectionButton.ForeColor = System.Drawing.Color.White;
+            this.connectionButton.Location = new System.Drawing.Point(586, 121);
             this.connectionButton.Name = "connectionButton";
-            this.connectionButton.Size = new System.Drawing.Size(121, 31);
+            this.connectionButton.Size = new System.Drawing.Size(121, 30);
             this.connectionButton.TabIndex = 3;
             this.connectionButton.Text = "Connect";
             this.connectionButton.UseVisualStyleBackColor = true;
@@ -70,7 +76,8 @@ namespace SerialTerminal
             // baudRateLabel
             // 
             this.baudRateLabel.AutoSize = true;
-            this.baudRateLabel.Location = new System.Drawing.Point(586, 18);
+            this.baudRateLabel.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.baudRateLabel.Location = new System.Drawing.Point(586, 12);
             this.baudRateLabel.Name = "baudRateLabel";
             this.baudRateLabel.Size = new System.Drawing.Size(60, 15);
             this.baudRateLabel.TabIndex = 4;
@@ -79,7 +86,8 @@ namespace SerialTerminal
             // comPortLabel
             // 
             this.comPortLabel.AutoSize = true;
-            this.comPortLabel.Location = new System.Drawing.Point(586, 84);
+            this.comPortLabel.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.comPortLabel.Location = new System.Drawing.Point(586, 63);
             this.comPortLabel.Name = "comPortLabel";
             this.comPortLabel.Size = new System.Drawing.Size(60, 15);
             this.comPortLabel.TabIndex = 5;
@@ -87,6 +95,8 @@ namespace SerialTerminal
             // 
             // receivedTextBox
             // 
+            this.receivedTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.receivedTextBox.ForeColor = System.Drawing.SystemColors.Info;
             this.receivedTextBox.Location = new System.Drawing.Point(12, 12);
             this.receivedTextBox.Name = "receivedTextBox";
             this.receivedTextBox.Size = new System.Drawing.Size(560, 183);
@@ -95,6 +105,8 @@ namespace SerialTerminal
             // 
             // sendTextBox
             // 
+            this.sendTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.sendTextBox.ForeColor = System.Drawing.SystemColors.Info;
             this.sendTextBox.Location = new System.Drawing.Point(12, 214);
             this.sendTextBox.Name = "sendTextBox";
             this.sendTextBox.Size = new System.Drawing.Size(560, 23);
@@ -102,6 +114,7 @@ namespace SerialTerminal
             // 
             // sendButton
             // 
+            this.sendButton.ForeColor = System.Drawing.Color.White;
             this.sendButton.Location = new System.Drawing.Point(586, 214);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(121, 23);
@@ -109,11 +122,24 @@ namespace SerialTerminal
             this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
             // 
+            // clearButton
+            // 
+            this.clearButton.ForeColor = System.Drawing.Color.White;
+            this.clearButton.Location = new System.Drawing.Point(586, 165);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(121, 30);
+            this.clearButton.TabIndex = 9;
+            this.clearButton.Text = "Clear";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
+            // 
             // SerialTerminal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(729, 259);
+            this.Controls.Add(this.clearButton);
             this.Controls.Add(this.sendButton);
             this.Controls.Add(this.sendTextBox);
             this.Controls.Add(this.receivedTextBox);
@@ -138,6 +164,7 @@ namespace SerialTerminal
         private System.Windows.Forms.RichTextBox receivedTextBox;
         private System.Windows.Forms.TextBox sendTextBox;
         private System.Windows.Forms.Button sendButton;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 

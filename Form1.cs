@@ -17,7 +17,7 @@ namespace SerialTerminal
                                            19200, 28800, 31250, 38400, 57600, 115200};
 
         static string[] comPorts = SerialPort.GetPortNames();
-        private static SerialPort _serialPort;
+        static SerialPort _serialPort;
 
         bool connected = false;
         int baudRate = 0;
@@ -28,6 +28,10 @@ namespace SerialTerminal
         public SerialTerminal()
         {
             InitializeComponent();
+            connectionButton.BackColor = Color.FromArgb(67, 176, 46);
+            clearButton.BackColor = Color.FromArgb(67, 176, 46);
+            sendButton.BackColor = Color.FromArgb(67, 176, 46);
+
             _serialPort = new SerialPort();
 
             /* Add valid baud rates */
@@ -60,10 +64,16 @@ namespace SerialTerminal
         {
             if(connected)
             {
-                string lineReceived = _serialPort.ReadLine();
-                ReceivedTextBoxWrite(lineReceived);
+                try 
+                {
+                    string lineReceived = _serialPort.ReadLine();
+                    ReceivedTextBoxWrite(lineReceived);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
-
         }
 
         #endregion
@@ -95,15 +105,15 @@ namespace SerialTerminal
                 connected = true;
 
                 connectionButton.Text = "Disconnect";
+                connectionButton.BackColor = Color.FromArgb(181, 38, 38);
             }
             else if(connected)
             {
                 _serialPort.Close();
                 connected = false;
                 connectionButton.Text = "Connect";
+                connectionButton.BackColor = Color.FromArgb(67, 176, 46);
             }
-
-
         }
 
         private void BaudRateComboBoxChanged(object sender, EventArgs e)
@@ -117,6 +127,11 @@ namespace SerialTerminal
         {
             ComboBox cmb = (ComboBox)sender;
             comPort = cmb.SelectedItem.ToString();
+        }
+      
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            receivedTextBox.Clear();
         }
         #endregion
     }
