@@ -20,12 +20,15 @@ namespace SerialTerminal
         private static SerialPort _serialPort;
 
         bool connected = false;
-        int baudRate;
+        int baudRate = 0;
+        string comPort = string.Empty;
 
+        private delegate void SafeCallDelegate(string text);
 
         public SerialTerminal()
         {
             InitializeComponent();
+            _serialPort = new SerialPort();
 
             /* Add valid baud rates */
             for (int i = 0; i < BaudRates.Length; i++)
@@ -35,6 +38,8 @@ namespace SerialTerminal
 
             GetAvailableComPorts();
         }
+
+        #region Serial port methods
 
         private void GetAvailableComPorts()
         {
@@ -51,20 +56,68 @@ namespace SerialTerminal
             }
         }
 
+        private void SerialDataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e) 
+        {
+            if(connected)
+            {
+                string lineReceived = _serialPort.ReadLine();
+                ReceivedTextBoxWrite(lineReceived);
+            }
+
+        }
+
+        #endregion
+
+        #region GUI methods
+
+        private void ReceivedTextBoxWrite(string text)
+        {
+            if(receivedTextBox.InvokeRequired)
+            {
+                var d = new SafeCallDelegate(ReceivedTextBoxWrite);
+                receivedTextBox.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                receivedTextBox.AppendText(text);
+            }
+        }
 
         private void ConnectButtonClick(object sender, EventArgs e)
         {
+            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !connected)
+            {
+                _serialPort.PortName = comPort;
+                _serialPort.BaudRate = baudRate;
+                _serialPort.Open();
+                _serialPort.DataReceived += SerialDataReceived;
+
+                connected = true;
+
+                connectionButton.Text = "Disconnect";
+            }
+            else if(connected)
+            {
+                _serialPort.Close();
+                connected = false;
+                connectionButton.Text = "Connect";
+            }
+
 
         }
 
         private void BaudRateComboBoxChanged(object sender, EventArgs e)
         {
-
+            ComboBox cmb = (ComboBox)sender;
+            string sli = cmb.SelectedItem.ToString();
+            baudRate = Int32.Parse(sli);
         }
 
         private void ComPortComboBoxChanged(object sender, EventArgs e)
         {
-
+            ComboBox cmb = (ComboBox)sender;
+            comPort = cmb.SelectedItem.ToString();
         }
+        #endregion
     }
 }
