@@ -114,9 +114,16 @@ namespace SerialTerminal
                     string lineReceived = _serialPort.ReadLine();
                     ReceivedTextBoxWrite(lineReceived);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    if (ex is InvalidOperationException)
+                    {
+
+                        connectionButton.Text = "Connect";
+                        connectionButton.BackColor = _greenBtn;
+                        IsConnected = false;
+                        _serialPort.Close();
+                    }
                 }
             }
         }
@@ -155,7 +162,11 @@ namespace SerialTerminal
             { 
                 if(ex is InvalidOperationException)
                 {
+                    
+                    connectionButton.Text = "Connect";
+                    connectionButton.BackColor = _greenBtn;
                     IsConnected = false;
+                    _serialPort.Close();
                 }
             }
         }
