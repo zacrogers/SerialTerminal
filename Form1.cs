@@ -13,32 +13,44 @@ namespace SerialTerminal
 {
     public partial class SerialTerminal : Form
     {
-        static readonly int[] BaudRates = {300, 600, 1200, 2400, 4800, 9600, 14400, 
+        #region Fields
+        static readonly int[] BaudRates = {300, 600, 1200, 2400, 4800, 9600, 14400,
                                            19200, 28800, 31250, 38400, 57600, 115200};
 
-        static string[] comPorts = SerialPort.GetPortNames();
+        static readonly Color _redBtn       = Color.FromArgb(181, 38, 38);
+        static readonly Color _darkRedBtn   = Color.FromArgb(128, 24, 24);
+        static readonly Color _greenBtn     = Color.FromArgb(67, 176, 46);
+        static readonly Color _darkGreenBtn = Color.FromArgb(67, 176, 46);
+
+        static List<string> comPorts = new List<string>();
         static SerialPort _serialPort;
 
         int baudRate = 0;
         string comPort = string.Empty;
 
+        bool isConnected;
+
         /* For remembering previously sent messages */
-        Stack<string> previousSentMessages = new Stack<string>();
+        Stack<string> previousSentMessages   = new Stack<string>();
         Stack<string> previousPoppedMessages = new Stack<string>();
+        #endregion
 
         /* For sending received serial data to text box safely */
         private delegate void SafeCallDelegate(string text);
 
+        #region Constructor
         public SerialTerminal()
         {
             InitializeComponent();
 
             /* Init button colours */
-            connectionButton.BackColor = Color.FromArgb(67, 176, 46);
-            clearButton.BackColor = Color.FromArgb(67, 176, 46);
-            sendButton.BackColor = Color.FromArgb(67, 176, 46);
+            connectionButton.BackColor = _greenBtn;
+            clearButton.BackColor      = _greenBtn;
+            sendButton.BackColor       = _greenBtn;
 
             _serialPort = new SerialPort();
+
+            IsConnected = false;
 
             /* Add valid baud rates */
             for (int i = 0; i < BaudRates.Length; i++)
@@ -48,27 +60,54 @@ namespace SerialTerminal
 
             GetAvailableComPorts();
         }
+        #endregion
+
+        #region Properties
+        private bool IsConnected
+        {
+            get { return isConnected; }
+            set 
+            {
+                isConnected = value;
+                
+                if(isConnected)
+                {
+                    sendButton.Enabled = true;
+                    sendTextBox.Enabled = true;
+                    sendButton.BackColor = _greenBtn;
+                }
+                else
+                {
+                    sendButton.Enabled = false;
+                    sendTextBox.Enabled = false;
+                    sendButton.BackColor = _darkRedBtn;
+                }
+            }
+        }
+
+        #endregion
 
         #region Serial port methods
 
         private void GetAvailableComPorts()
         {
-            Array.Clear(comPorts, 0, comPorts.Length);
+            comPorts.Clear();
+            comPortComboBox.Items.Clear();
 
-            comPorts = SerialPort.GetPortNames();
+            comPorts = SerialPort.GetPortNames().OfType<string>().ToList();
 
-            if (comPorts.Length == 0)
+            if (comPorts.Count == 0)
                 return;
 
-            for (int i = 0; i < comPorts.Length; i++)
+            foreach (string port in comPorts)
             {
-                comPortComboBox.Items.Add(comPorts[i]);
+                comPortComboBox.Items.Add(port);
             }
         }
 
-        private void SerialDataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e) 
+        private void SerialDataReceived(object sender, SerialDataReceivedEventArgs e) 
         {
-            if(_serialPort.IsOpen)
+            if(IsConnected)
             {
                 try 
                 {
@@ -84,8 +123,45 @@ namespace SerialTerminal
 
         #endregion
 
-        #region GUI methods
+        #region Other Methods
+        private void SendMessage()
+        {
+            string msg = sendTextBox.Text;
 
+            if (!string.IsNullOrWhiteSpace(msg))
+            {
+                if (carriageReturnCheckBox.Checked)
+                {
+                    msg += '\r';
+                }
+
+                if (newlineCheckBox.Checked)
+                {
+                    msg += '\n';
+                }
+                previousSentMessages.Push(msg);
+            }
+
+            //_serialPort.Write(msg);
+            //sendTextBox.Clear();
+
+            // Test to see if device has been removed
+            try 
+            {
+                _serialPort.Write(msg);
+                sendTextBox.Clear();
+            }
+            catch(Exception ex)
+            { 
+                if(ex is InvalidOperationException)
+                {
+                    IsConnected = false;
+                }
+            }
+        }
+        #endregion
+
+        #region GUI methods
         private void ReceivedTextBoxWrite(string text)
         {
             if(receivedTextBox.InvokeRequired)
@@ -107,25 +183,33 @@ namespace SerialTerminal
 
         private void ConnectButtonClick(object sender, EventArgs e)
         {
-            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !_serialPort.IsOpen)
+            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !IsConnected)
             {
                 _serialPort.PortName = comPort;
                 _serialPort.BaudRate = baudRate;
                 _serialPort.Open();
                 _serialPort.DataReceived += SerialDataReceived;
 
+                // IsOpen should only be used here. IsConnected is used to manage the connection
+                // status so the send button can be enabled/disabled
                 if(_serialPort.IsOpen)
                 {
                     connectionButton.Text = "Disconnect";
-                    connectionButton.BackColor = Color.FromArgb(181, 38, 38);
+                    connectionButton.BackColor = _redBtn;
+                    IsConnected = true;
+                }
+                else 
+                {
+                    IsConnected = false;
                 }
 
             }
-            else if(_serialPort.IsOpen)
+            else if(IsConnected)
             {
                 _serialPort.Close();
                 connectionButton.Text = "Connect";
-                connectionButton.BackColor = Color.FromArgb(67, 176, 46);
+                connectionButton.BackColor = _greenBtn;
+                IsConnected = false;
             }
         }
 
@@ -141,7 +225,12 @@ namespace SerialTerminal
             ComboBox cmb = (ComboBox)sender;
             comPort = cmb.SelectedItem.ToString();
         }
-      
+
+        private void ComPortComboBoxClicked(object sender, EventArgs e)
+        {
+            GetAvailableComPorts();
+        }
+
         private void clearButton_Click(object sender, EventArgs e)
         {
             receivedTextBox.Clear();
@@ -149,8 +238,10 @@ namespace SerialTerminal
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            if (_serialPort.IsOpen)
+            if (IsConnected)
             {
+                SendMessage();
+                /*
                 string msg = sendTextBox.Text;
 
                 if (!string.IsNullOrWhiteSpace(msg))
@@ -169,11 +260,14 @@ namespace SerialTerminal
 
                 _serialPort.Write(msg);
                 sendTextBox.Clear();
+                */
             }
             else
             {
                 connectionButton.Text = "Connect";
-                connectionButton.BackColor = Color.FromArgb(67, 176, 46);
+                connectionButton.BackColor = _greenBtn;
+
+                IsConnected = false;
             }
         }
 
@@ -181,8 +275,10 @@ namespace SerialTerminal
         {
             if(e.KeyCode == Keys.Enter)
             {
-                if (_serialPort.IsOpen)
+                if (IsConnected)
                 {
+                    SendMessage();
+                    /*
                     string msg = sendTextBox.Text;
 
                     if(!string.IsNullOrWhiteSpace(msg))
@@ -202,11 +298,13 @@ namespace SerialTerminal
                     
                     _serialPort.Write(msg);            
                     sendTextBox.Clear();
+                    */
                 }
                 else
                 {
                     connectionButton.Text = "Connect";
-                    connectionButton.BackColor = Color.FromArgb(67, 176, 46);
+                    connectionButton.BackColor = _greenBtn;
+                    IsConnected = false;
                 }
             }
             else if(e.KeyCode == Keys.Up)

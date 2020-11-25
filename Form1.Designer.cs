@@ -63,6 +63,7 @@ namespace SerialTerminal
             this.comPortComboBox.Size = new System.Drawing.Size(121, 23);
             this.comPortComboBox.TabIndex = 2;
             this.comPortComboBox.SelectedIndexChanged += new System.EventHandler(this.ComPortComboBoxChanged);
+            this.comPortComboBox.Click += new System.EventHandler(this.ComPortComboBoxClicked);
             // 
             // connectionButton
             // 
