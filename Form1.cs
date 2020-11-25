@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace SerialTerminal
 
         static List<string> comPorts = new List<string>();
         static SerialPort _serialPort;
+        Timer serialCheckTimer;
 
         int baudRate = 0;
         string comPort = string.Empty;
@@ -59,10 +61,16 @@ namespace SerialTerminal
             }
 
             GetAvailableComPorts();
+            
+            serialCheckTimer = new Timer();
+            serialCheckTimer.Interval = 5000;
+            serialCheckTimer.Start();
+            serialCheckTimer.Tick += new EventHandler(CheckComPortsConnected);           
         }
         #endregion
 
         #region Properties
+
         private bool IsConnected
         {
             get { return isConnected; }
@@ -89,6 +97,7 @@ namespace SerialTerminal
 
         #region Serial port methods
 
+
         private void GetAvailableComPorts()
         {
             comPorts.Clear();
@@ -105,7 +114,12 @@ namespace SerialTerminal
             }
         }
 
-        private void SerialDataReceived(object sender, SerialDataReceivedEventArgs e) 
+        /// <summary>
+        /// Takes data received from connected serial device and puts it in text box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SerialDataReceived(object sender, EventArgs e) 
         {
             if(IsConnected)
             {
@@ -127,7 +141,26 @@ namespace SerialTerminal
                 }
             }
         }
+        /// <summary>
+        /// Method for checking if a serial device has been removed while connected.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        private void CheckComPortsConnected(object source, EventArgs e)
+        {
+            if (IsConnected)
+            {
+                var currConnections = SerialPort.GetPortNames().OfType<string>().ToList();
 
+                if(!currConnections.All(comPorts.Contains))
+                {                    
+                    connectionButton.Text = "Connect";
+                    connectionButton.BackColor = _greenBtn;
+                    IsConnected = false;
+                    _serialPort.Close();
+                }
+            }
+        }
         #endregion
 
         #region Other Methods
@@ -161,8 +194,7 @@ namespace SerialTerminal
             catch(Exception ex)
             { 
                 if(ex is InvalidOperationException)
-                {
-                    
+                {                  
                     connectionButton.Text = "Connect";
                     connectionButton.BackColor = _greenBtn;
                     IsConnected = false;
@@ -194,15 +226,13 @@ namespace SerialTerminal
 
         private void ConnectButtonClick(object sender, EventArgs e)
         {
-            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !IsConnected)
+            if(BaudRates.Contains(baudRate) && comPort.Contains("COM") && !IsConnected && !_serialPort.IsOpen)
             {
                 _serialPort.PortName = comPort;
                 _serialPort.BaudRate = baudRate;
                 _serialPort.Open();
                 _serialPort.DataReceived += SerialDataReceived;
 
-                // IsOpen should only be used here. IsConnected is used to manage the connection
-                // status so the send button can be enabled/disabled
                 if(_serialPort.IsOpen)
                 {
                     connectionButton.Text = "Disconnect";
@@ -213,7 +243,6 @@ namespace SerialTerminal
                 {
                     IsConnected = false;
                 }
-
             }
             else if(IsConnected)
             {
@@ -237,6 +266,11 @@ namespace SerialTerminal
             comPort = cmb.SelectedItem.ToString();
         }
 
+        /// <summary>
+        /// Refreshes the available com ports when combo box is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ComPortComboBoxClicked(object sender, EventArgs e)
         {
             GetAvailableComPorts();
@@ -277,11 +311,15 @@ namespace SerialTerminal
             {
                 connectionButton.Text = "Connect";
                 connectionButton.BackColor = _greenBtn;
-
                 IsConnected = false;
             }
         }
 
+        /// <summary>
+        /// Handles key presses for sending message to serial device.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Enter)
