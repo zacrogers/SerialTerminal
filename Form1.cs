@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ namespace SerialTerminal
     public partial class SerialTerminal : Form
     {
         #region Fields
+        static readonly string PATH = Directory.GetCurrentDirectory();
         static readonly int[] BaudRates = {300, 600, 1200, 2400, 4800, 9600, 14400,
                                            19200, 28800, 31250, 38400, 57600, 115200};
 
@@ -44,6 +46,7 @@ namespace SerialTerminal
         public SerialTerminal()
         {
             InitializeComponent();
+            this.FormClosing += new FormClosingEventHandler(OnFormClosing);
 
             /* Init button colours */
             connectionButton.BackColor = _greenBtn;
@@ -54,13 +57,22 @@ namespace SerialTerminal
 
             IsConnected = false;
 
-            /* Add valid baud rates */
+            // Add valid baud rates 
             for (int i = 0; i < BaudRates.Length; i++)
             {
                 baudComboBox.Items.Add(BaudRates[i]);
             }
 
             GetAvailableComPorts();
+
+            // Load previous messages
+            StreamReader file = new StreamReader($"{PATH}//previous_commands.txt");
+            string line = string.Empty;
+
+            while((line = file.ReadLine()) != null)
+            {
+                previousSentMessages.Push(line);
+            }
             
             serialCheckTimer = new Timer();
             serialCheckTimer.Interval = 1000;
@@ -96,8 +108,6 @@ namespace SerialTerminal
         #endregion
 
         #region Serial port methods
-
-
         private void GetAvailableComPorts()
         {
             comPorts.Clear();
@@ -154,9 +164,7 @@ namespace SerialTerminal
                 }
             }
         }
-        #endregion
 
-        #region Other Methods
         private void SendMessage()
         {
             string msg = sendTextBox.Text;
@@ -192,6 +200,7 @@ namespace SerialTerminal
                 }
             }
         }
+
         private void DisconnectDevice()
         {
             connectionButton.Text = "Connect";
@@ -336,6 +345,33 @@ namespace SerialTerminal
                     sendTextBox.Clear();
                 }
             }
+        }
+
+        /// <summary>
+        /// Saves all the previously sent messages to a text file.
+        /// </summary>
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        {
+            using (StreamWriter file = new StreamWriter($"{PATH}//previous_commands.txt"))
+            {
+                // Push all previous messages back to stack
+                while (previousPoppedMessages.Count > 0){
+                    previousSentMessages.Push(previousPoppedMessages.Pop());
+                }
+
+                // Needs to be reversed to save in correct order
+                Stack<string> reversed = new Stack<string>();
+
+                while (previousSentMessages.Count > 0)
+                {
+                    reversed.Push(previousSentMessages.Pop());
+                }
+
+                // Write messages to file
+                while (reversed.Count > 0){
+                    file.WriteLine(reversed.Pop());
+                }
+            }      
         }
         #endregion
     }
