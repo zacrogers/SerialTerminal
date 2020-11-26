@@ -48,7 +48,7 @@ namespace SerialTerminal
             InitializeComponent();
             this.FormClosing += new FormClosingEventHandler(OnFormClosing);
 
-            /* Init button colours */
+            // Init button colours 
             connectionButton.BackColor = _greenBtn;
             clearButton.BackColor      = _greenBtn;
             sendButton.BackColor       = _greenBtn;
@@ -74,6 +74,7 @@ namespace SerialTerminal
                 previousSentMessages.Push(line);
             }
             
+            // Setup timer for checking device disconnection
             serialCheckTimer = new Timer();
             serialCheckTimer.Interval = 1000;
             serialCheckTimer.Start();
@@ -275,8 +276,6 @@ namespace SerialTerminal
         /// <summary>
         /// Refreshes the available com ports when combo box is clicked.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ComPortComboBoxClicked(object sender, EventArgs e)
         {
             GetAvailableComPorts();
@@ -304,8 +303,6 @@ namespace SerialTerminal
         /// <summary>
         /// Handles key presses for sending message to serial device.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Enter)
