@@ -63,7 +63,7 @@ namespace SerialTerminal
             GetAvailableComPorts();
             
             serialCheckTimer = new Timer();
-            serialCheckTimer.Interval = 5000;
+            serialCheckTimer.Interval = 1000;
             serialCheckTimer.Start();
             serialCheckTimer.Tick += new EventHandler(CheckComPortsConnected);           
         }
@@ -132,11 +132,7 @@ namespace SerialTerminal
                 {
                     if (ex is InvalidOperationException)
                     {
-
-                        connectionButton.Text = "Connect";
-                        connectionButton.BackColor = _greenBtn;
-                        IsConnected = false;
-                        _serialPort.Close();
+                        DisconnectDevice();
                     }
                 }
             }
@@ -152,12 +148,9 @@ namespace SerialTerminal
             {
                 var currConnections = SerialPort.GetPortNames().OfType<string>().ToList();
 
-                if(!currConnections.All(comPorts.Contains))
-                {                    
-                    connectionButton.Text = "Connect";
-                    connectionButton.BackColor = _greenBtn;
-                    IsConnected = false;
-                    _serialPort.Close();
+                if(!currConnections.Contains(comPort))
+                {
+                    DisconnectDevice();
                 }
             }
         }
@@ -194,14 +187,21 @@ namespace SerialTerminal
             catch(Exception ex)
             { 
                 if(ex is InvalidOperationException)
-                {                  
-                    connectionButton.Text = "Connect";
-                    connectionButton.BackColor = _greenBtn;
-                    IsConnected = false;
-                    _serialPort.Close();
+                {
+                    DisconnectDevice();
                 }
             }
         }
+        private void DisconnectDevice()
+        {
+            connectionButton.Text = "Connect";
+            connectionButton.BackColor = _greenBtn;
+            IsConnected = false;
+            comPort = string.Empty;
+            comPortComboBox.Text = string.Empty;
+            _serialPort.Close();
+        }
+
         #endregion
 
         #region GUI methods
@@ -246,10 +246,7 @@ namespace SerialTerminal
             }
             else if(IsConnected)
             {
-                _serialPort.Close();
-                connectionButton.Text = "Connect";
-                connectionButton.BackColor = _greenBtn;
-                IsConnected = false;
+                DisconnectDevice();
             }
         }
 
@@ -286,26 +283,6 @@ namespace SerialTerminal
             if (IsConnected)
             {
                 SendMessage();
-                /*
-                string msg = sendTextBox.Text;
-
-                if (!string.IsNullOrWhiteSpace(msg))
-                {
-                    if (carriageReturnCheckBox.Checked)
-                    {
-                        msg += '\r';
-                    }
-
-                    if (newlineCheckBox.Checked)
-                    {
-                        msg += '\n';
-                    }
-                    previousSentMessages.Push(msg);
-                }
-
-                _serialPort.Write(msg);
-                sendTextBox.Clear();
-                */
             }
             else
             {
@@ -327,27 +304,6 @@ namespace SerialTerminal
                 if (IsConnected)
                 {
                     SendMessage();
-                    /*
-                    string msg = sendTextBox.Text;
-
-                    if(!string.IsNullOrWhiteSpace(msg))
-                    {
-                        if (carriageReturnCheckBox.Checked)
-                        {
-                            msg += '\r';
-                        }
-
-                        if (newlineCheckBox.Checked)
-                        {
-                            msg += '\n';
-                        }
-
-                        previousSentMessages.Push(msg);
-                    }
-                    
-                    _serialPort.Write(msg);            
-                    sendTextBox.Clear();
-                    */
                 }
                 else
                 {
