@@ -66,12 +66,15 @@ namespace SerialTerminal
             GetAvailableComPorts();
 
             // Load previous messages
-            StreamReader file = new StreamReader($"{PATH}//previous_commands.txt");
-            string line = string.Empty;
-
-            while((line = file.ReadLine()) != null)
+            if (File.Exists($"{PATH}//previous_commands.txt"))
             {
-                previousSentMessages.Push(line);
+                StreamReader file = new StreamReader($"{PATH}//previous_commands.txt");
+                string line = string.Empty;
+
+                while ((line = file.ReadLine()) != null)
+                {
+                    previousSentMessages.Push(line);
+                }
             }
             
             // Setup timer for checking device disconnection
