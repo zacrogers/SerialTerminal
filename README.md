@@ -2,4 +2,4 @@
 
 Basic serial terminal program 
 
-![Terminal Image](terminal_image.png)
+![Terminal Image](terminal_image.PNG)
