@@ -91,12 +91,14 @@ namespace SerialTerminal
                 
                 if(isConnected)
                 {
+                    comPortComboBox.Enabled = false;
                     sendButton.Enabled = true;
                     sendTextBox.Enabled = true;
                     sendButton.BackColor = _greenBtn;
                 }
                 else
                 {
+                    comPortComboBox.Enabled = true;
                     sendButton.Enabled = false;
                     sendTextBox.Enabled = false;
                     sendButton.BackColor = _darkRedBtn;
@@ -347,6 +349,8 @@ namespace SerialTerminal
         /// </summary>
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
+            if(IsConnected){ DisconnectDevice(); }
+            
             using (StreamWriter file = new StreamWriter($"{PATH}//previous_commands.txt"))
             {
                 // Push all previous messages back to stack
@@ -357,8 +361,7 @@ namespace SerialTerminal
                 // Needs to be reversed to save in correct order
                 Stack<string> reversed = new Stack<string>();
 
-                while (previousSentMessages.Count > 0)
-                {
+                while (previousSentMessages.Count > 0){
                     reversed.Push(previousSentMessages.Pop());
                 }
 
