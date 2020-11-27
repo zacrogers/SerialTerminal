@@ -63,13 +63,19 @@ namespace SerialTerminal
             // Load previous messages
             if (File.Exists($"{PATH}//previous_commands.txt"))
             {
-                StreamReader file = new StreamReader($"{PATH}//previous_commands.txt");
-                string line = string.Empty;
+                try 
+                { 
+                    using( var file = new StreamReader($"{PATH}//previous_commands.txt"))
+                    {
+                        string line = string.Empty;
 
-                while ((line = file.ReadLine()) != null)
-                {
-                    previousSentMessages.Push(line);
+                        while ((line = file.ReadLine()) != null)
+                        {
+                            previousSentMessages.Push(line);
+                        }
+                    }
                 }
+                catch(IOException e){ }
             }
             
             // Setup timer for checking device disconnection
