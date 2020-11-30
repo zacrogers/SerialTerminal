@@ -58,6 +58,9 @@ namespace SerialTerminal
                 baudComboBox.Items.Add(BaudRates[i]);
             }
 
+            // Set defualt baud as 9600
+            baudComboBox.SelectedIndex = 5; 
+
             GetAvailableComPorts();
 
             // Load previous messages
@@ -97,6 +100,7 @@ namespace SerialTerminal
                 
                 if(isConnected)
                 {
+                    baudComboBox.Enabled = false;
                     comPortComboBox.Enabled = false;
                     sendButton.Enabled = true;
                     sendTextBox.Enabled = true;
@@ -104,6 +108,7 @@ namespace SerialTerminal
                 }
                 else
                 {
+                    baudComboBox.Enabled = true;
                     comPortComboBox.Enabled = true;
                     sendButton.Enabled = false;
                     sendTextBox.Enabled = false;
